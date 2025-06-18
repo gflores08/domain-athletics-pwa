@@ -1,0 +1,3519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Athletics - Trainer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #000;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #d32f2f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #d32f2f;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .trainer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #b71c1c;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(211, 47, 47, 0.3);
+            padding: 1rem;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #d32f2f;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(211, 47, 47, 0.2);
+        }
+
+        .nav-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(211, 47, 47, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(211, 47, 47, 0.2);
+            border-color: #d32f2f;
+            transform: translateX(5px);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #d32f2f;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 0.25rem;
+        }
+
+        .btn:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(211, 47, 47, 0.2);
+            border: 1px solid #d32f2f;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        /* COMPACT CLIENT CARDS */
+        .client-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(211, 47, 47, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 80px; /* Fixed compact height */
+        }
+
+        .client-card:hover {
+            background: rgba(211, 47, 47, 0.2);
+            transform: translateX(5px);
+        }
+
+        .client-info h3 {
+            color: #d32f2f;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .client-quick-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0.2rem 0;
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .client-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-active {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-inactive {
+            background: #ff9800;
+            color: white;
+        }
+
+        .sessions-indicator {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        /* FIX FOR DROPDOWN VISIBILITY */
+        .form-select option {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 0.5rem;
+        }
+
+        .form-select:focus option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+        }
+
+        .search-container {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .exercise-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: rgba(211, 47, 47, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .exercise-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* STREAMLINED EXERCISE ITEMS */
+        .exercise-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(211, 47, 47, 0.2);
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise-item:hover {
+            background: rgba(211, 47, 47, 0.1);
+        }
+
+        .exercise-item.hidden {
+            display: none;
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .exercise-category {
+            background: #d32f2f;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .exercise-muscles {
+            font-size: 0.9rem;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .exercise-description {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        .video-link {
+            color: #d32f2f;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .video-link:hover {
+            color: #b71c1c;
+        }
+
+        .workout-builder {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .exercise-library-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .workout-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(211, 47, 47, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 500px;
+        }
+
+        /* FLEXIBLE WORKOUT EXERCISE STRUCTURE */
+        .workout-exercise {
+            background: rgba(211, 47, 47, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .exercise-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .sets-container {
+            margin: 0.5rem 0;
+        }
+
+        .set-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .set-input {
+            width: 60px;
+            padding: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 3px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .add-set-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-set-btn {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+            color: #f44336;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* NEW: Exercise Notes Section */
+        .exercise-notes {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+        }
+
+        .exercise-notes textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .exercise-notes label {
+            color: #2196F3;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(211, 47, 47, 0.3);
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* ENHANCED PROGRESS CHARTS - Remove all overlay positioning */
+        .progress-chart {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            text-align: center;
+            min-height: 300px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #d32f2f, #b71c1c);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* NEW: Demo Line Charts - Full Size */
+        .demo-chart {
+            width: 100%;
+            height: 250px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .chart-grid {
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 0.5;
+        }
+
+        .chart-line-demo {
+            fill: none;
+            stroke: #4caf50;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .chart-point-demo {
+            fill: #fff;
+            stroke: #4caf50;
+            stroke-width: 3;
+            r: 6;
+        }
+
+        .chart-text {
+            fill: white;
+            font-size: 14px;
+            text-anchor: middle;
+            font-weight: bold;
+        }
+
+        .chart-axis-label {
+            fill: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            text-anchor: middle;
+        }
+
+        .chart-description {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .chart-stats {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: #4caf50;
+            border-radius: 2px;
+        }
+
+        .chart-points {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chart-point {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #4caf50;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Google Calendar Integration Styles */
+        .calendar-integration {
+            background: rgba(66, 165, 245, 0.1);
+            border: 2px solid rgba(66, 165, 245, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .calendar-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-icon {
+            font-size: 2rem;
+        }
+
+        .sync-status {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .sync-status.disconnected {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .calendar-appointments {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .appointment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(66, 165, 245, 0.1);
+            border-left: 4px solid #42a5f5;
+            border-radius: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            margin: 2% auto;
+            padding: 2rem;
+            border: 1px solid #d32f2f;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: #d32f2f;
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+
+        .close:hover {
+            color: #b71c1c;
+        }
+
+        .modal-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(211, 47, 47, 0.1);
+            border-radius: 8px;
+        }
+
+        .modal-section h3 {
+            color: #d32f2f;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #d32f2f;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 3000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .draggable {
+            cursor: grab;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed rgba(211, 47, 47, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #d32f2f;
+            background: rgba(211, 47, 47, 0.1);
+        }
+
+        .progress-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-card {
+            background: rgba(211, 47, 47, 0.1);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .metric-change.positive {
+            color: #4caf50;
+        }
+
+        .metric-change.negative {
+            color: #f44336;
+        }
+
+        .report-content {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(211, 47, 47, 0.3);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        .report-section {
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(211, 47, 47, 0.3);
+        }
+
+        /* Client Details Modal */
+        .client-details-modal .modal-content {
+            max-width: 1000px;
+        }
+
+        .revenue-info {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .revenue-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .revenue-item {
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 4px;
+        }
+
+        .previous-workout {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .previous-workout h4 {
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+
+        .previous-exercise {
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Attendance Calendar */
+        .attendance-calendar {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .week-cell {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .week-perfect {
+            background: #4caf50;
+            color: white;
+        }
+
+        .week-good {
+            background: #ff9800;
+            color: white;
+        }
+
+        .week-missed {
+            background: #f44336;
+            color: white;
+        }
+
+        /* MOBILE RESPONSIVE STYLES */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 2000;
+                transform: translateX(-100%);
+                border-right: none;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+                padding-top: 4rem;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .content-area {
+                width: 100%;
+                padding: 1rem;
+                margin-top: 0;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .exercise-tabs {
+                justify-content: center;
+            }
+
+            .workout-builder {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .client-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .client-actions {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .session-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .session-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .attendance-calendar {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .progress-metrics {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .revenue-details {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .set-row {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .set-input {
+                width: 50px;
+            }
+
+            .trainer-info span {
+                display: none;
+            }
+
+            .logout-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .chart-description {
+                padding: 0.5rem;
+            }
+
+            .chart-stats {
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                padding: 1rem;
+                width: 98%;
+            }
+
+            .exercise-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .exercise-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.8rem 1rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .content-area {
+                padding: 0.5rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .form-input, .form-select, .form-textarea {
+                padding: 0.6rem;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .attendance-calendar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .week-cell {
+                padding: 0.3rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="hamburger" onclick="toggleSidebar()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="logo">DOMAIN ATHLETICS</div>
+        </div>
+        <div class="trainer-info">
+            <span id="trainerName">Trainer Dashboard</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+            <div class="nav-item active" onclick="showSection('dashboard')">
+                📊 Dashboard
+            </div>
+            <div class="nav-item" onclick="showSection('clients')">
+                👥 Client Management
+            </div>
+            <div class="nav-item" onclick="showSection('exercises')">
+                💪 Exercise Library
+            </div>
+            <div class="nav-item" onclick="showSection('workouts')">
+                📋 Workout Builder
+            </div>
+            <div class="nav-item" onclick="showSection('sessions')">
+                ⏱️ Session Tracking
+            </div>
+            <div class="nav-item" onclick="showSection('progress')">
+                📈 Progress Analytics
+            </div>
+            <div class="nav-item" onclick="showSection('messages')">
+                💬 Client Messages
+            </div>
+            <div class="nav-item" onclick="showSection('reports')">
+                📄 Progress Reports
+            </div>
+            <div class="nav-item" onclick="showSection('quick-session')">
+                ⚡ Quick Session
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <div class="section-header">
+                    <h1 class="section-title">Trainer Dashboard</h1>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalClients">15</div>
+                        <div class="stat-label">Active Clients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Sessions Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">47</div>
+                        <div class="stat-label">Total Workouts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="monthlyRevenue">$3,240</div>
+                        <div class="stat-label">Monthly Revenue</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <!-- Google Calendar Integration -->
+                    <div class="calendar-integration">
+                        <div class="calendar-status">
+                            <div class="calendar-icon">📅</div>
+                            <div>
+                                <h3>Google Calendar Integration</h3>
+                                <div class="sync-status connected" id="calendarStatus">✅ Connected to trainer@gmail.com</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 1rem 0;">
+                            <button class="btn btn-secondary" onclick="connectGoogleCalendar()" id="connectBtn" style="display: none;">
+                                🔗 Connect Google Calendar
+                            </button>
+                            <button class="btn btn-secondary" onclick="syncCalendar()">
+                                🔄 Sync Now
+                            </button>
+                            <button class="btn btn-secondary" onclick="openCalendarSettings()">
+                                ⚙️ Settings
+                            </button>
+                        </div>
+
+                        <div class="calendar-appointments">
+                            <h4>📋 Today's Schedule</h4>
+                            <div class="appointment-item">
+                                <div>
+                                    <strong>John Smith - Upper Body Training</strong>
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">10:00 AM - 11:00 AM</div>
+                                </div>
+                                <span class="client-status status-active">Upcoming</span>
+                            </div>
+                            <div class="appointment-item">
+                                <div>
+                                    <strong>Sarah Johnson - HIIT Session</strong>
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">2:00 PM - 3:00 PM</div>
+                                </div>
+                                <span class="client-status status-active">Upcoming</span>
+                            </div>
+                            <div class="appointment-item">
+                                <div>
+                                    <strong>Lunch Break</strong>
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">12:00 PM - 1:00 PM</div>
+                                </div>
+                                <span style="background: #ff9800; color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;">Personal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Recent Messages</h3>
+                        <div style="padding: 1rem; background: rgba(211, 47, 47, 0.1); border-radius: 8px; margin: 0.5rem 0;">
+                            <strong>Mike Davis:</strong> Great workout today! Feeling stronger already.
+                        </div>
+                        <div style="padding: 1rem; background: rgba(211, 47, 47, 0.1); border-radius: 8px; margin: 0.5rem 0;">
+                            <strong>Lisa Wong:</strong> Can we adjust tomorrow's routine? Shoulder is still sore.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+                    <button class="btn" onclick="showSection('sessions')">Start Quick Session</button>
+                    <button class="btn btn-secondary" onclick="showSection('clients')">Add New Client</button>
+                    <button class="btn btn-secondary" onclick="showSection('workouts')">Create Workout</button>
+                </div>
+            </div>
+
+            <!-- Client Management Section -->
+            <div id="clients" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Client Management</h1>
+                    <button class="btn" onclick="openClientModal()">Add New Client</button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search clients..." id="clientSearch">
+                </div>
+
+                <div id="clientsList">
+                    <!-- Demo Client 1: John Smith -->
+                    <div class="client-card" onclick="viewClientDetails('john')">
+                        <div class="client-info">
+                            <h3>John Smith</h3>
+                            <div class="client-quick-info">Muscle Building • 8 sessions left</div>
+                            <div class="sessions-indicator">24 completed / 92% attendance</div>
+                        </div>
+                        <div class="client-actions">
+                            <span class="client-status status-active">ACTIVE</span>
+                            <div>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editClient('john')">Edit</button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProgress('john')">Progress</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Client 2: Sarah Johnson -->
+                    <div class="client-card" onclick="viewClientDetails('sarah')">
+                        <div class="client-info">
+                            <h3>Sarah Johnson</h3>
+                            <div class="client-quick-info">Weight Loss & Cardio • 4 sessions left</div>
+                            <div class="sessions-indicator">16 completed / 95% attendance</div>
+                        </div>
+                        <div class="client-actions">
+                            <span class="client-status status-active">ACTIVE</span>
+                            <div>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editClient('sarah')">Edit</button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProgress('sarah')">Progress</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Client 3: Mike Davis -->
+                    <div class="client-card" onclick="viewClientDetails('mike')">
+                        <div class="client-info">
+                            <h3>Mike Davis</h3>
+                            <div class="client-quick-info">Strength Training • 10 sessions left</div>
+                            <div class="sessions-indicator">20 completed / 87% attendance</div>
+                        </div>
+                        <div class="client-actions">
+                            <span class="client-status status-active">ACTIVE</span>
+                            <div>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editClient('mike')">Edit</button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProgress('mike')">Progress</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Client 4: Lisa Wong -->
+                    <div class="client-card" onclick="viewClientDetails('lisa')">
+                        <div class="client-info">
+                            <h3>Lisa Wong</h3>
+                            <div class="client-quick-info">Body Recomposition • 2 sessions left</div>
+                            <div class="sessions-indicator">14 completed / 88% attendance</div>
+                        </div>
+                        <div class="client-actions">
+                            <span class="client-status status-active">ACTIVE</span>
+                            <div>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editClient('lisa')">Edit</button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProgress('lisa')">Progress</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Client 5: Alex Chen -->
+                    <div class="client-card" onclick="viewClientDetails('alex')">
+                        <div class="client-info">
+                            <h3>Alex Chen</h3>
+                            <div class="client-quick-info">Athletic Performance • 12 sessions left</div>
+                            <div class="sessions-indicator">18 completed / 90% attendance</div>
+                        </div>
+                        <div class="client-actions">
+                            <span class="client-status status-active">ACTIVE</span>
+                            <div>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editClient('alex')">Edit</button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProgress('alex')">Progress</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise Library Section -->
+            <div id="exercises" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Exercise Library</h1>
+                    <button class="btn" onclick="openExerciseModal()">Add Exercise</button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search exercises..." id="exerciseSearch">
+                </div>
+
+                <div class="exercise-tabs">
+                    <div class="tab active" onclick="filterExercises('all')">All</div>
+                    <div class="tab" onclick="filterExercises('chest')">Chest</div>
+                    <div class="tab" onclick="filterExercises('back')">Back</div>
+                    <div class="tab" onclick="filterExercises('legs')">Legs</div>
+                    <div class="tab" onclick="filterExercises('cardio')">Cardio</div>
+                </div>
+
+                <div class="exercise-list">
+                    <div class="exercise-item draggable" draggable="true" data-exercise="bench-press" data-category="chest">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Bench Press</strong>
+                                <span class="exercise-category">CHEST</span>
+                            </div>
+                            <div class="exercise-muscles">Chest, Triceps, Shoulders</div>
+                            <div class="exercise-description">Lie on bench, press weight up and down with control</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo1" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('bench-press')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="incline-press" data-category="chest">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Incline Dumbbell Press</strong>
+                                <span class="exercise-category">CHEST</span>
+                            </div>
+                            <div class="exercise-muscles">Upper Chest, Triceps</div>
+                            <div class="exercise-description">Press dumbbells on incline bench targeting upper chest</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo5" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('incline-press')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="deadlift" data-category="back">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Deadlift</strong>
+                                <span class="exercise-category">BACK</span>
+                            </div>
+                            <div class="exercise-muscles">Hamstrings, Glutes, Back</div>
+                            <div class="exercise-description">Hip hinge movement, lift bar from ground to standing</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo2" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('deadlift')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="pull-up" data-category="back">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Pull Up</strong>
+                                <span class="exercise-category">BACK</span>
+                            </div>
+                            <div class="exercise-muscles">Lats, Biceps, Shoulders</div>
+                            <div class="exercise-description">Hang from bar, pull body up until chin over bar</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo4" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('pull-up')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="squat" data-category="legs">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Squat</strong>
+                                <span class="exercise-category">LEGS</span>
+                            </div>
+                            <div class="exercise-muscles">Quads, Glutes, Core</div>
+                            <div class="exercise-description">Lower body by bending knees, keep chest up</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo3" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('squat')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="lunges" data-category="legs">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Walking Lunges</strong>
+                                <span class="exercise-category">LEGS</span>
+                            </div>
+                            <div class="exercise-muscles">Quads, Glutes, Hamstrings</div>
+                            <div class="exercise-description">Step forward into lunge, alternate legs</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo7" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('lunges')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="burpees" data-category="cardio">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Burpees</strong>
+                                <span class="exercise-category">CARDIO</span>
+                            </div>
+                            <div class="exercise-muscles">Full Body</div>
+                            <div class="exercise-description">Squat down, jump back to plank, push-up, jump forward, jump up</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo6" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('burpees')">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="exercise-item draggable" draggable="true" data-exercise="mountain-climbers" data-category="cardio">
+                        <div class="exercise-info">
+                            <div class="exercise-header">
+                                <strong>Mountain Climbers</strong>
+                                <span class="exercise-category">CARDIO</span>
+                            </div>
+                            <div class="exercise-muscles">Core, Shoulders, Cardio</div>
+                            <div class="exercise-description">Start in plank, alternate bringing knees to chest quickly</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <a href="https://youtube.com/watch?v=demo8" class="video-link" target="_blank">📹 Demo</a>
+                            <button class="btn btn-secondary btn-small" onclick="addToWorkout('mountain-climbers')">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout Builder Section -->
+            <div id="workouts" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Workout Builder</h1>
+                    <div>
+                        <button class="btn btn-secondary" onclick="loadTemplate()">Load Template</button>
+                        <button class="btn btn-secondary" onclick="copyLastWorkout()">Copy Last Workout</button>
+                        <button class="btn" onclick="saveWorkout()">Save Workout</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Workout Name</label>
+                        <input type="text" class="form-input" id="workoutName" placeholder="Enter workout name" value="Upper Body Strength A">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Assign to Client</label>
+                        <select class="form-select" id="assignClient">
+                            <option value="">Select Client (Optional)</option>
+                            <option value="john">John Smith</option>
+                            <option value="sarah">Sarah Johnson</option>
+                            <option value="mike">Mike Davis</option>
+                            <option value="lisa">Lisa Wong</option>
+                            <option value="alex">Alex Chen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="workout-builder">
+                    <div class="exercise-library-panel">
+                        <h3>Exercise Library</h3>
+                        <div class="search-container">
+                            <input type="text" class="search-input" placeholder="Search exercises...">
+                        </div>
+                        <div class="exercise-tabs">
+                            <div class="tab active" onclick="filterBuilderExercises('all')">All</div>
+                            <div class="tab" onclick="filterBuilderExercises('chest')">Chest</div>
+                            <div class="tab" onclick="filterBuilderExercises('back')">Back</div>
+                            <div class="tab" onclick="filterBuilderExercises('legs')">Legs</div>
+                            <div class="tab" onclick="filterBuilderExercises('cardio')">Cardio</div>
+                        </div>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <div class="exercise-item draggable" draggable="true" data-exercise="bench-press">
+                                <div><strong>Bench Press</strong><br><small>CHEST • Chest, Triceps</small></div>
+                                <button class="btn btn-secondary btn-small" onclick="addToWorkout('bench-press')">+</button>
+                            </div>
+                            <div class="exercise-item draggable" draggable="true" data-exercise="deadlift">
+                                <div><strong>Deadlift</strong><br><small>BACK • Back, Hamstrings</small></div>
+                                <button class="btn btn-secondary btn-small" onclick="addToWorkout('deadlift')">+</button>
+                            </div>
+                            <div class="exercise-item draggable" draggable="true" data-exercise="squat">
+                                <div><strong>Squat</strong><br><small>LEGS • Quads, Glutes</small></div>
+                                <button class="btn btn-secondary btn-small" onclick="addToWorkout('squat')">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="workout-panel drop-zone" id="workoutPanel">
+                        <h3>Workout Plan</h3>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 1rem;">Drag exercises here or use the + button</p>
+                        
+                        <!-- Demo workout with flexible sets and notes -->
+                        <div class="workout-exercise">
+                            <div class="exercise-title-row">
+                                <strong>1. Bench Press</strong>
+                                <button class="btn btn-secondary btn-small" onclick="removeExercise(this)">Remove</button>
+                            </div>
+                            <div class="sets-container">
+                                <div class="set-row">
+                                    <span>Set 1 (Warmup):</span>
+                                    <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="95" min="0" placeholder="Weight">
+                                    <span>lbs</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <div class="set-row">
+                                    <span>Set 2 (Working):</span>
+                                    <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="135" min="0" placeholder="Weight">
+                                    <span>lbs</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <div class="set-row">
+                                    <span>Set 3 (Working):</span>
+                                    <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="135" min="0" placeholder="Weight">
+                                    <span>lbs</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <button class="add-set-btn" onclick="addSet(this)">+ Add Set</button>
+                            </div>
+                            <!-- NEW: Exercise Notes Section -->
+                            <div class="exercise-notes">
+                                <label>📝 Trainer Notes & Cues (Optional)</label>
+                                <textarea placeholder="Add coaching cues, form reminders, or special instructions for this exercise...">Keep chest up, pinch shoulder blades together. Control the descent, pause briefly at chest, drive through feet.</textarea>
+                            </div>
+                        </div>
+
+                        <div class="workout-exercise">
+                            <div class="exercise-title-row">
+                                <strong>2. Incline Dumbbell Press</strong>
+                                <button class="btn btn-secondary btn-small" onclick="removeExercise(this)">Remove</button>
+                            </div>
+                            <div class="sets-container">
+                                <div class="set-row">
+                                    <span>Set 1:</span>
+                                    <input type="number" class="set-input" value="10" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="35" min="0" placeholder="Weight">
+                                    <span>lbs each</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <div class="set-row">
+                                    <span>Set 2:</span>
+                                    <input type="number" class="set-input" value="10" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="35" min="0" placeholder="Weight">
+                                    <span>lbs each</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <div class="set-row">
+                                    <span>Set 3:</span>
+                                    <input type="number" class="set-input" value="10" min="1" placeholder="Reps">
+                                    <span>reps @</span>
+                                    <input type="number" class="set-input" value="35" min="0" placeholder="Weight">
+                                    <span>lbs each</span>
+                                    <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                                </div>
+                                <button class="add-set-btn" onclick="addSet(this)">+ Add Set</button>
+                            </div>
+                            <!-- NEW: Exercise Notes Section -->
+                            <div class="exercise-notes">
+                                <label>📝 Trainer Notes & Cues (Optional)</label>
+                                <textarea placeholder="Add coaching cues, form reminders, or special instructions for this exercise...">45-degree angle, full range of motion. Don't let dumbbells drift forward.</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Workout Notes</label>
+                    <textarea class="form-textarea" rows="3" placeholder="Add any special instructions or notes...">Focus on controlled movements. Rest 60-90 seconds between sets. Increase weight when you can complete all reps with good form.</textarea>
+                </div>
+            </div>
+
+            <!-- Session Tracking Section -->
+            <div id="sessions" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Session Tracking</h1>
+                    <div>
+                        <select class="form-select" style="width: 200px;" id="sessionClient" onchange="loadClientWorkouts()">
+                            <option value="">Select Client</option>
+                            <option value="john">John Smith</option>
+                            <option value="sarah">Sarah Johnson</option>
+                            <option value="mike">Mike Davis</option>
+                            <option value="lisa">Lisa Wong</option>
+                            <option value="alex">Alex Chen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="clientWorkouts" style="display: none;">
+                    <h3>Today's Assigned Workouts</h3>
+                    
+                    <div class="session-card">
+                        <div class="session-header">
+                            <div>
+                                <h4>Upper Body Strength A</h4>
+                                <p>Assigned: Yesterday • Due: Today</p>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn btn-secondary" onclick="markMissed(this)">Mark Missed</button>
+                                <button class="btn" onclick="startWorkout(this)">Start Workout</button>
+                            </div>
+                        </div>
+                        
+                        <div class="previous-workout">
+                            <h4>📊 Last Upper Body Session (3 days ago)</h4>
+                            <div class="previous-exercise">
+                                <strong>Bench Press:</strong> 3 sets × 8 reps @ 135 lbs (completed 8,7,6 reps)
+                            </div>
+                            <div class="previous-exercise">
+                                <strong>Incline Dumbbell Press:</strong> 3 sets × 10 reps @ 35 lbs (completed 10,9,8 reps)
+                            </div>
+                            <div class="previous-exercise">
+                                <strong>Tricep Dips:</strong> 3 sets × 12 reps @ BW (completed 12,11,10 reps)
+                            </div>
+                            <p style="margin-top: 0.5rem; font-style: italic; color: #2196F3;">
+                                Goal: Try to match or beat these numbers today!
+                            </p>
+                        </div>
+                        
+                        <div class="workout-tracking" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h5>Workout in Progress - Track Performance</h5>
+                                <button class="btn" onclick="completeWorkout(this)">Complete Workout</button>
+                            </div>
+                            
+                            <div class="exercise-tracking">
+                                <div style="background: rgba(211, 47, 47, 0.1); border-radius: 8px; padding: 1rem; margin: 0.5rem 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <strong>1. Bench Press - 3 sets x 8 reps @ 135 lbs</strong>
+                                    </div>
+                                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; align-items: center;">
+                                        <span>Set 1:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="8">
+                                        <input type="number" class="set-input" placeholder="Weight" value="135">
+                                        <span>Set 2:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="8">
+                                        <input type="number" class="set-input" placeholder="Weight" value="135">
+                                        <span>Set 3:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="7">
+                                        <input type="number" class="set-input" placeholder="Weight" value="135">
+                                    </div>
+                                </div>
+                                
+                                <div style="background: rgba(211, 47, 47, 0.1); border-radius: 8px; padding: 1rem; margin: 0.5rem 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <strong>2. Incline Dumbbell Press - 3 sets x 10 reps @ 35 lbs each</strong>
+                                    </div>
+                                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; align-items: center;">
+                                        <span>Set 1:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="10">
+                                        <input type="number" class="set-input" placeholder="Weight" value="35">
+                                        <span>Set 2:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="9">
+                                        <input type="number" class="set-input" placeholder="Weight" value="35">
+                                        <span>Set 3:</span>
+                                        <input type="number" class="set-input" placeholder="Reps" value="8">
+                                        <input type="number" class="set-input" placeholder="Weight" value="35">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Session Notes</label>
+                                <textarea class="form-textarea" rows="2" placeholder="How did the client perform? Any issues or improvements?">Client felt strong today. Form was excellent on bench press. Struggled with last set of incline press - may need to reduce weight slightly next session.</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="noClientSelected" class="empty-state">
+                    <p>Select a client to view their assigned workouts and start tracking sessions</p>
+                </div>
+            </div>
+
+            <!-- Progress Analytics Section -->
+            <div id="progress" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Progress Analytics</h1>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-select" style="width: 200px;" id="progressClient" onchange="loadProgressData()">
+                        <option value="">Select Client</option>
+                        <option value="john">John Smith</option>
+                        <option value="sarah">Sarah Johnson</option>
+                        <option value="mike">Mike Davis</option>
+                        <option value="lisa">Lisa Wong</option>
+                        <option value="alex">Alex Chen</option>
+                    </select>
+                </div>
+
+                <div id="progressData" style="display: none;">
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">Total Sessions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">+15%</div>
+                            <div class="stat-label">Strength Increase</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">-8lbs</div>
+                            <div class="stat-label">Weight Change</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">92%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <h3>Weight Progress</h3>
+                            <!-- NEW: Full-Size Weight Progress Chart -->
+                            <div class="demo-chart">
+                                <svg class="chart-svg" viewBox="0 0 500 200">
+                                    <!-- Grid lines -->
+                                    <g class="chart-grid">
+                                        <line x1="60" y1="20" x2="460" y2="20"></line>
+                                        <line x1="60" y1="60" x2="460" y2="60"></line>
+                                        <line x1="60" y1="100" x2="460" y2="100"></line>
+                                        <line x1="60" y1="140" x2="460" y2="140"></line>
+                                        <line x1="60" y1="180" x2="460" y2="180"></line>
+                                        
+                                        <!-- Vertical grid -->
+                                        <line x1="60" y1="20" x2="60" y2="180"></line>
+                                        <line x1="120" y1="20" x2="120" y2="180"></line>
+                                        <line x1="180" y1="20" x2="180" y2="180"></line>
+                                        <line x1="240" y1="20" x2="240" y2="180"></line>
+                                        <line x1="300" y1="20" x2="300" y2="180"></line>
+                                        <line x1="360" y1="20" x2="360" y2="180"></line>
+                                        <line x1="420" y1="20" x2="420" y2="180"></line>
+                                        <line x1="460" y1="20" x2="460" y2="180"></line>
+                                    </g>
+                                    
+                                    <!-- Weight loss line (downward trend) -->
+                                    <polyline class="chart-line-demo" 
+                                              points="60,40 120,50 180,70 240,90 300,110 360,130 420,150 460,170"
+                                              stroke="#4caf50"></polyline>
+                                    
+                                    <!-- Data points -->
+                                    <circle class="chart-point-demo" cx="60" cy="40"></circle>
+                                    <circle class="chart-point-demo" cx="120" cy="50"></circle>
+                                    <circle class="chart-point-demo" cx="180" cy="70"></circle>
+                                    <circle class="chart-point-demo" cx="240" cy="90"></circle>
+                                    <circle class="chart-point-demo" cx="300" cy="110"></circle>
+                                    <circle class="chart-point-demo" cx="360" cy="130"></circle>
+                                    <circle class="chart-point-demo" cx="420" cy="150"></circle>
+                                    <circle class="chart-point-demo" cx="460" cy="170"></circle>
+                                    
+                                    <!-- Week Labels -->
+                                    <text class="chart-axis-label" x="60" y="195">W1</text>
+                                    <text class="chart-axis-label" x="120" y="195">W2</text>
+                                    <text class="chart-axis-label" x="180" y="195">W3</text>
+                                    <text class="chart-axis-label" x="240" y="195">W4</text>
+                                    <text class="chart-axis-label" x="300" y="195">W5</text>
+                                    <text class="chart-axis-label" x="360" y="195">W6</text>
+                                    <text class="chart-axis-label" x="420" y="195">W7</text>
+                                    <text class="chart-axis-label" x="460" y="195">W8</text>
+                                    
+                                    <!-- Weight Values (Y-axis) -->
+                                    <text class="chart-axis-label" x="40" y="45" font-size="11">193</text>
+                                    <text class="chart-axis-label" x="40" y="85" font-size="11">190</text>
+                                    <text class="chart-axis-label" x="40" y="125" font-size="11">187</text>
+                                    <text class="chart-axis-label" x="40" y="165" font-size="11">185</text>
+                                </svg>
+                            </div>
+                            
+                            <!-- Chart Description Below -->
+                            <div class="chart-description">
+                                <div class="chart-stats">📉 Weight Loss Progress: 193 lbs → 185 lbs (-8 lbs)</div>
+                                <p>Consistent downward trend with 1-2 lbs loss per week</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Strength Progress</h3>
+                            <div class="progress-chart">
+                                <!-- NEW: Demo Strength Progress Chart -->
+                                <div class="demo-chart">
+                                    <svg class="chart-svg" viewBox="0 0 400 150">
+                                        <!-- Grid lines -->
+                                        <g class="chart-grid">
+                                            <line x1="40" y1="20" x2="380" y2="20"></line>
+                                            <line x1="40" y1="50" x2="380" y2="50"></line>
+                                            <line x1="40" y1="80" x2="380" y2="80"></line>
+                                            <line x1="40" y1="110" x2="380" y2="110"></line>
+                                        </g>
+                                        
+                                        <!-- Strength increase line (upward trend) -->
+                                        <polyline class="chart-line-demo" 
+                                                  points="40,110 120,95 200,75 280,55 380,35"
+                                                  stroke="#FF9800"></polyline>
+                                        
+                                        <!-- Data points -->
+                                        <circle class="chart-point-demo" cx="40" cy="110" stroke="#FF9800"></circle>
+                                        <circle class="chart-point-demo" cx="120" cy="95" stroke="#FF9800"></circle>
+                                        <circle class="chart-point-demo" cx="200" cy="75" stroke="#FF9800"></circle>
+                                        <circle class="chart-point-demo" cx="280" cy="55" stroke="#FF9800"></circle>
+                                        <circle class="chart-point-demo" cx="380" cy="35" stroke="#FF9800"></circle>
+                                        
+                                        <!-- Labels -->
+                                        <text class="chart-text" x="40" y="135">W1</text>
+                                        <text class="chart-text" x="120" y="135">W3</text>
+                                        <text class="chart-text" x="200" y="135">W5</text>
+                                        <text class="chart-text" x="280" y="135">W7</text>
+                                        <text class="chart-text" x="380" y="135">W8</text>
+                                        
+                                        <!-- Weight values -->
+                                        <text class="chart-text" x="20" y="45" font-size="10">155</text>
+                                        <text class="chart-text" x="20" y="75" font-size="10">145</text>
+                                        <text class="chart-text" x="20" y="105" font-size="10">135</text>
+                                    </svg>
+                                </div>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; text-align: center;">
+                                    <div style="color: white; font-size: 1.2rem; margin-bottom: 0.5rem;">💪 Bench Press Progress</div>
+                                    <div style="color: #FF9800; font-weight: bold;">135 → 155 lbs (+15%)</div>
+                                </div>
+                                <p style="margin-top: 1rem;">Excellent progression across all major lifts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Weekly Progress Snapshots</h3>
+                        <div class="progress-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">Week 8</div>
+                                <div>Weight: 185 lbs</div>
+                                <div class="metric-change negative">-2 lbs from Week 7</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">22/24</div>
+                                <div>Sessions Attended</div>
+                                <div class="metric-change positive">92% attendance</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">155 lbs</div>
+                                <div>Current Bench Press</div>
+                                <div class="metric-change positive">+5 lbs this week</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">32%</div>
+                                <div>Body Fat (estimated)</div>
+                                <div class="metric-change negative">-3% from start</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Attendance Tracking</h3>
+                        <div class="attendance-calendar">
+                            <div class="week-cell week-perfect">W1: 3/3</div>
+                            <div class="week-cell week-perfect">W2: 3/3</div>
+                            <div class="week-cell week-good">W3: 2/3</div>
+                            <div class="week-cell week-perfect">W4: 3/3</div>
+                            <div class="week-cell week-perfect">W5: 3/3</div>
+                            <div class="week-cell week-good">W6: 2/3</div>
+                            <div class="week-cell week-perfect">W7: 3/3</div>
+                            <div class="week-cell week-perfect">W8: 3/3</div>
+                        </div>
+                        <p style="font-size: 0.9rem; opacity: 0.8;">Green = All sessions attended, Orange = Missed 1+ sessions</p>
+                    </div>
+                </div>
+
+                <div id="noProgressClient" class="empty-state">
+                    <p>Select a client to view their progress analytics and tracking data</p>
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            <div id="messages" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Client Messages</h1>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>Client List</h3>
+                        <div class="client-card" onclick="selectMessageClient('john')">
+                            <div class="client-info">
+                                <h4>John Smith</h4>
+                                <p>Last message: 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="client-card" onclick="selectMessageClient('sarah')">
+                            <div class="client-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Last message: 1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="client-card" onclick="selectMessageClient('mike')">
+                            <div class="client-info">
+                                <h4>Mike Davis</h4>
+                                <p>Last message: 3 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="client-card" onclick="selectMessageClient('lisa')">
+                            <div class="client-info">
+                                <h4>Lisa Wong</h4>
+                                <p>Last message: 5 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="client-card" onclick="selectMessageClient('alex')">
+                            <div class="client-info">
+                                <h4>Alex Chen</h4>
+                                <p>Last message: 1 day ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Messages with <span id="selectedClient">Select a client</span></h3>
+                        <div id="messageArea" style="border: 1px solid rgba(211, 47, 47, 0.3); border-radius: 8px; padding: 1rem; margin: 1rem 0; background: rgba(0, 0, 0, 0.2); min-height: 200px; max-height: 300px; overflow-y: auto;">
+                            <p style="color: rgba(255,255,255,0.6); text-align: center; padding: 2rem;">
+                                Select a client to view message history
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-textarea" placeholder="Type your message..." rows="3" id="messageInput"></textarea>
+                            <button class="btn" style="margin-top: 0.5rem;" onclick="sendMessage()">Send Message</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Progress Reports</h1>
+                    <button class="btn" onclick="generateReport()">Generate Report</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Select Client</label>
+                        <select class="form-select" id="reportClient">
+                            <option value="">Choose client</option>
+                            <option value="john">John Smith</option>
+                            <option value="sarah">Sarah Johnson</option>
+                            <option value="mike">Mike Davis</option>
+                            <option value="lisa">Lisa Wong</option>
+                            <option value="alex">Alex Chen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Report Period</label>
+                        <select class="form-select" id="reportPeriod">
+                            <option value="week">Last Week</option>
+                            <option value="month">Last Month</option>
+                            <option value="quarter">Last Quarter</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="report-content">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="color: #d32f2f;">PROGRESS REPORT</h2>
+                        <h3>John Smith - 8 Week Training Summary</h3>
+                        <p>Report Generated: June 6, 2025</p>
+                    </div>
+
+                    <div class="report-section">
+                        <h4 style="color: #d32f2f;">🎯 GOALS & ACHIEVEMENTS</h4>
+                        <p><strong>Primary Goal:</strong> Build muscle mass and increase overall strength</p>
+                        <p><strong>Key Achievements:</strong></p>
+                        <ul style="margin-left: 1rem;">
+                            <li>Lost 8 lbs while gaining visible muscle mass</li>
+                            <li>Increased bench press by 20 lbs (15% improvement)</li>
+                            <li>Maintained 92% attendance rate</li>
+                            <li>Improved form and technique across all major lifts</li>
+                        </ul>
+                    </div>
+
+                    <div class="report-section">
+                        <h4 style="color: #d32f2f;">📊 PERFORMANCE METRICS</h4>
+                        <div class="progress-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">185 lbs</div>
+                                <div>Current Weight</div>
+                                <div class="metric-change negative">-8 lbs from start</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">155 lbs</div>
+                                <div>Bench Press 1RM</div>
+                                <div class="metric-change positive">+20 lbs from start</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">275 lbs</div>
+                                <div>Deadlift 1RM</div>
+                                <div class="metric-change positive">+50 lbs from start</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">22/24</div>
+                                <div>Sessions Completed</div>
+                                <div class="metric-change positive">92% attendance</div>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Enhanced Report Chart with Full-Size Demo Line Graph -->
+                        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(211, 47, 47, 0.3); border-radius: 8px; padding: 2rem; margin: 1rem 0;">
+                            <h4 style="color: #d32f2f; text-align: left; margin-bottom: 1rem;">📈 Strength Progress Over Time</h4>
+                            
+                            <!-- Full-Size Reports Chart -->
+                            <div class="demo-chart">
+                                <svg class="chart-svg" viewBox="0 0 500 200">
+                                    <!-- Grid lines -->
+                                    <g class="chart-grid">
+                                        <line x1="60" y1="20" x2="460" y2="20"></line>
+                                        <line x1="60" y1="60" x2="460" y2="60"></line>
+                                        <line x1="60" y1="100" x2="460" y2="100"></line>
+                                        <line x1="60" y1="140" x2="460" y2="140"></line>
+                                        <line x1="60" y1="180" x2="460" y2="180"></line>
+                                        
+                                        <!-- Vertical grid -->
+                                        <line x1="60" y1="20" x2="60" y2="180"></line>
+                                        <line x1="120" y1="20" x2="120" y2="180"></line>
+                                        <line x1="180" y1="20" x2="180" y2="180"></line>
+                                        <line x1="240" y1="20" x2="240" y2="180"></line>
+                                        <line x1="300" y1="20" x2="300" y2="180"></line>
+                                        <line x1="360" y1="20" x2="360" y2="180"></line>
+                                        <line x1="420" y1="20" x2="420" y2="180"></line>
+                                        <line x1="460" y1="20" x2="460" y2="180"></line>
+                                    </g>
+                                    
+                                    <!-- Bench Press Progress Line -->
+                                    <polyline class="chart-line-demo" 
+                                              points="60,170 120,155 180,135 240,115 300,95 360,75 420,55 460,35"
+                                              stroke="#d32f2f"></polyline>
+                                    
+                                    <!-- Data points -->
+                                    <circle class="chart-point-demo" cx="60" cy="170" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="120" cy="155" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="180" cy="135" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="240" cy="115" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="300" cy="95" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="360" cy="75" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="420" cy="55" stroke="#d32f2f"></circle>
+                                    <circle class="chart-point-demo" cx="460" cy="35" stroke="#d32f2f"></circle>
+                                    
+                                    <!-- Week Labels -->
+                                    <text class="chart-axis-label" x="60" y="195">W1</text>
+                                    <text class="chart-axis-label" x="120" y="195">W2</text>
+                                    <text class="chart-axis-label" x="180" y="195">W3</text>
+                                    <text class="chart-axis-label" x="240" y="195">W4</text>
+                                    <text class="chart-axis-label" x="300" y="195">W5</text>
+                                    <text class="chart-axis-label" x="360" y="195">W6</text>
+                                    <text class="chart-axis-label" x="420" y="195">W7</text>
+                                    <text class="chart-axis-label" x="460" y="195">W8</text>
+                                    
+                                    <!-- Weight Labels -->
+                                    <text class="chart-axis-label" x="40" y="175" font-size="11">135</text>
+                                    <text class="chart-axis-label" x="40" y="135" font-size="11">145</text>
+                                    <text class="chart-axis-label" x="40" y="95" font-size="11">150</text>
+                                    <text class="chart-axis-label" x="40" y="55" font-size="11">155</text>
+                                </svg>
+                            </div>
+                            
+                            <!-- Chart Description Below -->
+                            <div class="chart-description">
+                                <div class="chart-stats">Bench Press Progress: 135 lbs → 155 lbs (+20 lbs)</div>
+                                <p>Consistent strength gains week over week with proper progressive overload</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4 style="color: #d32f2f;">📈 WEEKLY BREAKDOWN</h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <div style="background: rgba(211, 47, 47, 0.1); padding: 1rem; border-radius: 8px;">
+                                <strong>Weeks 1-2</strong><br>
+                                <small>Focus: Form & Foundation</small><br>
+                                Weight: 193 → 191 lbs<br>
+                                Bench: 135 → 140 lbs
+                            </div>
+                            <div style="background: rgba(211, 47, 47, 0.1); padding: 1rem; border-radius: 8px;">
+                                <strong>Weeks 3-4</strong><br>
+                                <small>Focus: Progressive Overload</small><br>
+                                Weight: 191 → 188 lbs<br>
+                                Bench: 140 → 145 lbs
+                            </div>
+                            <div style="background: rgba(211, 47, 47, 0.1); padding: 1rem; border-radius: 8px;">
+                                <strong>Weeks 5-6</strong><br>
+                                <small>Focus: Strength Building</small><br>
+                                Weight: 188 → 186 lbs<br>
+                                Bench: 145 → 150 lbs
+                            </div>
+                            <div style="background: rgba(211, 47, 47, 0.1); padding: 1rem; border-radius: 8px;">
+                                <strong>Weeks 7-8</strong><br>
+                                <small>Focus: Peak Performance</small><br>
+                                Weight: 186 → 185 lbs<br>
+                                Bench: 150 → 155 lbs
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4 style="color: #d32f2f;">🔥 TRAINER OBSERVATIONS</h4>
+                        <p><strong>Strengths:</strong> Excellent consistency, quick to learn proper form, highly motivated, follows nutrition guidance well.</p>
+                        <p><strong>Areas for Improvement:</strong> Could benefit from additional mobility work, tendency to rush through warm-up.</p>
+                        <p><strong>Notable Sessions:</strong> Week 6 - First time benching bodyweight (185 lbs). Week 8 - Completed all planned sets with perfect form.</p>
+                    </div>
+
+                    <div class="report-section">
+                        <h4 style="color: #d32f2f;">🎯 NEXT PHASE RECOMMENDATIONS</h4>
+                        <ul style="margin-left: 1rem;">
+                            <li>Introduce advanced compound movements (front squats, overhead press)</li>
+                            <li>Add dedicated mobility and flexibility sessions</li>
+                            <li>Begin working toward 200 lb bench press goal</li>
+                            <li>Consider adding a 4th training day for accessory work</li>
+                            <li>Continue current nutrition approach - it's working well</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(211, 47, 47, 0.3);">
+                        <button class="btn btn-secondary">Export as PDF</button>
+                        <button class="btn btn-secondary">Email to Client</button>
+                        <button class="btn">Generate New Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Session Section -->
+            <div id="quick-session" class="section">
+                <div class="section-header">
+                    <h1 class="section-title">Quick Session Mode</h1>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; align-items: center;">
+                    <select class="form-select" style="width: 200px;" id="quickSessionClient">
+                        <option value="">Select Client</option>
+                        <option value="john">John Smith</option>
+                        <option value="sarah">Sarah Johnson</option>
+                        <option value="mike">Mike Davis</option>
+                        <option value="lisa">Lisa Wong</option>
+                        <option value="alex">Alex Chen</option>
+                    </select>
+                    <button class="btn" onclick="startQuickSession()">Start Quick Session</button>
+                </div>
+
+                <div id="quickSessionArea" class="empty-state">
+                    <p>Select a client to start a quick session with on-the-fly workout creation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Details Modal -->
+    <div id="clientDetailsModal" class="modal client-details-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeClientDetailsModal()">&times;</span>
+            <h2 id="clientDetailsTitle">Client Details</h2>
+            <div id="clientDetailsContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Client Modal -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeClientModal()">&times;</span>
+            <h2 id="clientModalTitle">Client Information</h2>
+            <form id="clientForm">
+                <!-- Section 1: Basic Info -->
+                <div class="modal-section">
+                    <h3>🔹 Basic Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="clientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="clientEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-input" id="clientAge">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" id="clientGender">
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other / Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Height (e.g., 5'8")</label>
+                            <input type="text" class="form-input" id="clientHeight">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current Weight (lbs)</label>
+                            <input type="number" class="form-input" id="clientWeight">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Occupation</label>
+                        <input type="text" class="form-input" id="clientOccupation" placeholder="Helps us understand daily movement level">
+                    </div>
+                </div>
+
+                <!-- Section 2: Goals & Fitness -->
+                <div class="modal-section">
+                    <h3>🔹 Goals & Fitness</h3>
+                    <div class="form-group">
+                        <label class="form-label">Main Goal</label>
+                        <select class="form-select" id="clientGoal">
+                            <option value="">Select primary goal</option>
+                            <option value="fat-loss">Fat Loss</option>
+                            <option value="muscle-gain">Muscle Gain</option>
+                            <option value="body-recomp">Body Recomposition</option>
+                            <option value="maintain">Maintain & Get Healthier</option>
+                            <option value="energy">Improve Energy / Focus</option>
+                            <option value="athletic">Athletic Performance</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Success in 60 days would look like</label>
+                        <textarea class="form-textarea" rows="3" id="clientSuccess"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 3: Financial & Session Management -->
+                <div class="modal-section">
+                    <h3>🔹 Financial & Session Management</h3>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">Total Amount Purchased ($)</label>
+                            <input type="number" class="form-input" id="clientTotalPurchased" placeholder="e.g., 480" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sessions Completed</label>
+                            <input type="number" class="form-input" id="clientSessionsCompleted" placeholder="e.g., 24" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sessions Remaining</label>
+                            <input type="number" class="form-input" id="clientSessionsRemaining" placeholder="e.g., 8" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Package Type</label>
+                            <select class="form-select" id="clientPackage">
+                                <option value="">Select Package</option>
+                                <option value="single">Single Session ($30)</option>
+                                <option value="4-pack">4-Session Package ($100)</option>
+                                <option value="8-pack">8-Session Package ($200)</option>
+                                <option value="monthly">Monthly Unlimited ($250)</option>
+                                <option value="custom">Custom Package</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="clientStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Save Client</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Enhanced Exercise Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeExerciseModal()">&times;</span>
+            <h2>Add Exercise</h2>
+            <form id="exerciseForm">
+                <div class="form-group">
+                    <label class="form-label">Exercise Name</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" required>
+                            <option value="">Select category</option>
+                            <option value="chest">Chest</option>
+                            <option value="back">Back</option>
+                            <option value="legs">Legs</option>
+                            <option value="cardio">Cardio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Muscles</label>
+                        <input type="text" class="form-input" placeholder="e.g., Chest, Triceps, Shoulders">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">YouTube Demo URL</label>
+                    <input type="url" class="form-input" placeholder="https://youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Instructions</label>
+                    <textarea class="form-textarea" rows="4" placeholder="Brief exercise description..."></textarea>
+                </div>
+                <button type="submit" class="btn">Save Exercise</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ===== MOBILE SIDEBAR FUNCTIONS =====
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            const hamburger = document.querySelector('.hamburger');
+            
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+            hamburger.classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            const hamburger = document.querySelector('.hamburger');
+            
+            sidebar.classList.remove('show');
+            backdrop.classList.remove('show');
+            hamburger.classList.remove('active');
+        }
+
+        // ===== GLOBAL VARIABLES =====
+        let currentWorkout = [];
+        let draggedExercise = null;
+        let clientData = {
+            john: {
+                id: 'john',
+                name: 'John Smith',
+                email: 'john@email.com',
+                age: 32,
+                gender: 'male',
+                height: '6\'0"',
+                weight: 185,
+                goal: 'Muscle Building',
+                totalPurchased: 480,
+                sessionsCompleted: 24,
+                sessionsRemaining: 8,
+                attendanceRate: 92,
+                status: 'active'
+            },
+            sarah: {
+                id: 'sarah',
+                name: 'Sarah Johnson',
+                email: 'sarah@email.com',
+                age: 28,
+                gender: 'female',
+                height: '5\'4"',
+                weight: 142,
+                goal: 'Weight Loss & Cardio',
+                totalPurchased: 320,
+                sessionsCompleted: 16,
+                sessionsRemaining: 4,
+                attendanceRate: 95,
+                status: 'active'
+            },
+            mike: {
+                id: 'mike',
+                name: 'Mike Davis',
+                email: 'mike@email.com',
+                age: 35,
+                gender: 'male',
+                height: '5\'10"',
+                weight: 210,
+                goal: 'Strength Training',
+                totalPurchased: 600,
+                sessionsCompleted: 20,
+                sessionsRemaining: 10,
+                attendanceRate: 87,
+                status: 'active'
+            },
+            lisa: {
+                id: 'lisa',
+                name: 'Lisa Wong',
+                email: 'lisa@email.com',
+                age: 26,
+                gender: 'female',
+                height: '5\'6"',
+                weight: 135,
+                goal: 'Body Recomposition',
+                totalPurchased: 400,
+                sessionsCompleted: 14,
+                sessionsRemaining: 2,
+                attendanceRate: 88,
+                status: 'active'
+            },
+            alex: {
+                id: 'alex',
+                name: 'Alex Chen',
+                email: 'alex@email.com',
+                age: 24,
+                gender: 'male',
+                height: '5\'8"',
+                weight: 165,
+                goal: 'Athletic Performance',
+                totalPurchased: 720,
+                sessionsCompleted: 18,
+                sessionsRemaining: 12,
+                attendanceRate: 90,
+                status: 'active'
+            }
+        };
+
+        // ===== GLOBAL FUNCTIONS =====
+        
+        function showSection(sectionId) {
+            console.log('Switching to section:', sectionId);
+            
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log('Section activated:', sectionId);
+            } else {
+                console.error('Section not found:', sectionId);
+            }
+            
+            // Add active to clicked nav item
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Close sidebar on mobile when section is selected
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        }
+        
+        function logout() {
+            console.log('Logging out...');
+            
+            // Show confirmation dialog
+            if (confirm('Are you sure you want to log out?')) {
+                // Clear all stored session data
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userSession');
+                
+                // Clear any other domain athletics data if needed for fresh login
+                // localStorage.removeItem('domainAthleticsData'); // Uncomment if you want to clear demo data too
+                
+                // Show logout message
+                showNotification('Logged out successfully! Redirecting to login...');
+                
+                // Firebase logout if available
+                if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+                    window.firebaseAuth.signOut().then(() => {
+                        console.log('Firebase user signed out');
+                    }).catch((error) => {
+                        console.error('Firebase logout error:', error);
+                    });
+                }
+                
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        }
+
+        // ===== GOOGLE CALENDAR FUNCTIONS =====
+        
+        function connectGoogleCalendar() {
+            showNotification('Connecting to Google Calendar...');
+            
+            // Simulate OAuth flow
+            setTimeout(() => {
+                document.getElementById('calendarStatus').textContent = '✅ Connected to trainer@gmail.com';
+                document.getElementById('calendarStatus').className = 'sync-status connected';
+                document.getElementById('connectBtn').style.display = 'none';
+                showNotification('Google Calendar connected successfully!');
+            }, 2000);
+        }
+        
+        function syncCalendar() {
+            showNotification('Syncing with Google Calendar...');
+            
+            setTimeout(() => {
+                showNotification('Calendar synced successfully! 3 appointments found for today.');
+            }, 1500);
+        }
+        
+        function openCalendarSettings() {
+            showNotification('Opening calendar settings...');
+        }
+
+        // ===== CLIENT MANAGEMENT FUNCTIONS =====
+        
+        function viewClientDetails(clientId) {
+            const client = clientData[clientId];
+            if (!client) return;
+            
+            const modal = document.getElementById('clientDetailsModal');
+            const title = document.getElementById('clientDetailsTitle');
+            const content = document.getElementById('clientDetailsContent');
+            
+            title.textContent = `${client.name} - Detailed View`;
+            
+            content.innerHTML = `
+                <div class="modal-section">
+                    <h3>🔹 Basic Information</h3>
+                    <div class="form-row">
+                        <div><strong>Email:</strong> ${client.email}</div>
+                        <div><strong>Age:</strong> ${client.age} years old</div>
+                    </div>
+                    <div class="form-row">
+                        <div><strong>Height:</strong> ${client.height}</div>
+                        <div><strong>Weight:</strong> ${client.weight} lbs</div>
+                    </div>
+                    <div><strong>Primary Goal:</strong> ${client.goal}</div>
+                </div>
+                
+                <div class="revenue-info">
+                    <strong>💰 Financial & Session Summary</strong>
+                    <div class="revenue-details">
+                        <div class="revenue-item">
+                            <div style="font-size: 1.4rem; font-weight: bold;">${client.totalPurchased}</div>
+                            <div style="font-size: 0.9rem;">Total Purchased</div>
+                        </div>
+                        <div class="revenue-item">
+                            <div style="font-size: 1.4rem; font-weight: bold;">${client.sessionsCompleted}</div>
+                            <div style="font-size: 0.9rem;">Sessions Completed</div>
+                        </div>
+                        <div class="revenue-item">
+                            <div style="font-size: 1.4rem; font-weight: bold;">${client.sessionsRemaining}</div>
+                            <div style="font-size: 0.9rem;">Sessions Remaining</div>
+                        </div>
+                        <div class="revenue-item">
+                            <div style="font-size: 1.4rem; font-weight: bold;">${client.attendanceRate}%</div>
+                            <div style="font-size: 0.9rem;">Attendance Rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="btn btn-secondary" onclick="editClient('${clientId}')">Edit Client</button>
+                    <button class="btn btn-secondary" onclick="viewProgress('${clientId}')">View Progress</button>
+                    <button class="btn" onclick="markSessionComplete('${clientId}')">Mark Session Complete</button>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeClientDetailsModal() {
+            document.getElementById('clientDetailsModal').style.display = 'none';
+        }
+        
+        function markSessionComplete(clientId) {
+            const client = clientData[clientId];
+            if (client.sessionsRemaining > 0) {
+                client.sessionsRemaining--;
+                client.sessionsCompleted++;
+                
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Update client display
+                updateClientDisplay();
+                
+                showNotification(`Session marked complete for ${client.name}. ${client.sessionsRemaining} sessions remaining.`);
+                closeClientDetailsModal();
+            } else {
+                showNotification('No sessions remaining for this client', 'error');
+            }
+        }
+        
+        function updateDashboardStats() {
+            // Update total revenue
+            let totalRevenue = 0;
+            Object.values(clientData).forEach(client => {
+                totalRevenue += client.totalPurchased;
+            });
+            document.getElementById('monthlyRevenue').textContent = `${totalRevenue.toLocaleString()}`;
+            
+            // Update total clients
+            document.getElementById('totalClients').textContent = Object.keys(clientData).length;
+        }
+        
+        function updateClientDisplay() {
+            // This would update the client list display
+            // For now, just refresh the section
+            const currentSection = document.querySelector('.section.active');
+            if (currentSection && currentSection.id === 'clients') {
+                // The client cards would be updated here in a real implementation
+                console.log('Client display updated');
+            }
+        }
+
+        function openClientModal(clientData = null) {
+            console.log('Opening client modal', clientData);
+            const modal = document.getElementById('clientModal');
+            const title = document.getElementById('clientModalTitle');
+            
+            if (clientData) {
+                title.textContent = 'Edit Client Information';
+                populateClientForm(clientData);
+            } else {
+                title.textContent = 'Add New Client';
+                clearClientForm();
+            }
+            
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeClientModal() {
+            console.log('Closing client modal');
+            const modal = document.getElementById('clientModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function editClient(clientId) {
+            console.log('Editing client:', clientId);
+            const client = clientData[clientId];
+            if (client) {
+                openClientModal(client);
+            }
+        }
+
+        function populateClientForm(data) {
+            document.getElementById('clientName').value = data.name || '';
+            document.getElementById('clientEmail').value = data.email || '';
+            document.getElementById('clientAge').value = data.age || '';
+            document.getElementById('clientGender').value = data.gender || '';
+            document.getElementById('clientHeight').value = data.height || '';
+            document.getElementById('clientWeight').value = data.weight || '';
+            document.getElementById('clientGoal').value = data.goal || '';
+            document.getElementById('clientTotalPurchased').value = data.totalPurchased || '';
+            document.getElementById('clientSessionsCompleted').value = data.sessionsCompleted || '';
+            document.getElementById('clientSessionsRemaining').value = data.sessionsRemaining || '';
+            document.getElementById('clientStatus').value = data.status || '';
+        }
+
+        function clearClientForm() {
+            document.getElementById('clientForm').reset();
+        }
+
+        function viewProgress(clientId) {
+            console.log('Viewing progress for:', clientId);
+            showSection('progress');
+            document.getElementById('progressClient').value = clientId;
+            loadProgressData();
+        }
+
+        // ===== EXERCISE LIBRARY FUNCTIONS =====
+
+        function openExerciseModal() {
+            console.log('Opening exercise modal');
+            const modal = document.getElementById('exerciseModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeExerciseModal() {
+            console.log('Closing exercise modal');
+            const modal = document.getElementById('exerciseModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // NEW: Enhanced Exercise Filtering
+        function filterExercises(category) {
+            console.log('Filtering exercises by:', category);
+            
+            // Update active tab
+            const tabs = document.querySelectorAll('.exercise-tabs .tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Filter exercise items
+            const exerciseItems = document.querySelectorAll('.exercise-item[data-category]');
+            exerciseItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                if (category === 'all' || itemCategory === category) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+            
+            showNotification(`Showing ${category} exercises`);
+        }
+
+        function filterBuilderExercises(category) {
+            console.log('Filtering builder exercises by:', category);
+            
+            // Update active tab in workout builder
+            const tabs = event.target.parentElement.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // ===== WORKOUT BUILDER FUNCTIONS =====
+
+        function addToWorkout(exerciseId) {
+            console.log('Adding exercise to workout:', exerciseId);
+            const exerciseNames = {
+                'bench-press': 'Bench Press',
+                'deadlift': 'Deadlift',
+                'squat': 'Squat',
+                'pull-up': 'Pull Up',
+                'incline-press': 'Incline Dumbbell Press',
+                'burpees': 'Burpees',
+                'lunges': 'Walking Lunges',
+                'mountain-climbers': 'Mountain Climbers'
+            };
+            
+            const exerciseName = exerciseNames[exerciseId] || exerciseId;
+            const workoutPanel = document.getElementById('workoutPanel');
+            const exerciseCount = workoutPanel.querySelectorAll('.workout-exercise').length + 1;
+            
+            const exerciseDiv = document.createElement('div');
+            exerciseDiv.className = 'workout-exercise';
+            exerciseDiv.innerHTML = `
+                <div class="exercise-title-row">
+                    <strong>${exerciseCount}. ${exerciseName}</strong>
+                    <button class="btn btn-secondary btn-small" onclick="removeExercise(this)">Remove</button>
+                </div>
+                <div class="sets-container">
+                    <div class="set-row">
+                        <span>Set 1:</span>
+                        <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                        <span>reps @</span>
+                        <input type="number" class="set-input" value="0" min="0" placeholder="Weight">
+                        <span>lbs</span>
+                        <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                    </div>
+                    <button class="add-set-btn" onclick="addSet(this)">+ Add Set</button>
+                </div>
+                <!-- NEW: Exercise Notes Section -->
+                <div class="exercise-notes">
+                    <label>📝 Trainer Notes & Cues (Optional)</label>
+                    <textarea placeholder="Add coaching cues, form reminders, or special instructions for this exercise..."></textarea>
+                </div>
+            `;
+            
+            workoutPanel.appendChild(exerciseDiv);
+            showNotification(`${exerciseName} added to workout`);
+        }
+
+        function addSet(button) {
+            const setsContainer = button.parentElement;
+            const setCount = setsContainer.querySelectorAll('.set-row').length + 1;
+            
+            const setDiv = document.createElement('div');
+            setDiv.className = 'set-row';
+            setDiv.innerHTML = `
+                <span>Set ${setCount}:</span>
+                <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                <span>reps @</span>
+                <input type="number" class="set-input" value="0" min="0" placeholder="Weight">
+                <span>lbs</span>
+                <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+            `;
+            
+            setsContainer.insertBefore(setDiv, button);
+            showNotification('Set added to exercise');
+        }
+
+        function removeSet(button) {
+            const setRow = button.closest('.set-row');
+            const setsContainer = setRow.parentElement;
+            
+            // Don't allow removing if it's the only set
+            if (setsContainer.querySelectorAll('.set-row').length > 1) {
+                setRow.remove();
+                
+                // Renumber the remaining sets
+                const setRows = setsContainer.querySelectorAll('.set-row');
+                setRows.forEach((row, index) => {
+                    const setLabel = row.querySelector('span');
+                    setLabel.textContent = `Set ${index + 1}:`;
+                });
+                
+                showNotification('Set removed from exercise');
+            } else {
+                showNotification('Exercise must have at least one set', 'error');
+            }
+        }
+
+        function removeExercise(button) {
+            const exerciseDiv = button.closest('.workout-exercise');
+            exerciseDiv.remove();
+            showNotification('Exercise removed from workout');
+        }
+
+        function saveWorkout() {
+            const workoutName = document.getElementById('workoutName').value;
+            const assignedClient = document.getElementById('assignClient').value;
+            
+            if (!workoutName) {
+                showNotification('Please enter a workout name', 'error');
+                return;
+            }
+            
+            showNotification(`Workout "${workoutName}" saved successfully!`);
+            
+            if (assignedClient) {
+                showNotification(`Workout assigned to client`);
+            }
+        }
+
+        function loadTemplate() {
+            showNotification('Loading workout template...');
+        }
+
+        function copyLastWorkout() {
+            showNotification('Copying last workout...');
+        }
+
+        // ===== SESSION TRACKING FUNCTIONS =====
+
+        function loadClientWorkouts() {
+            const clientSelect = document.getElementById('sessionClient');
+            const clientWorkouts = document.getElementById('clientWorkouts');
+            const noClient = document.getElementById('noClientSelected');
+            
+            if (clientSelect.value) {
+                clientWorkouts.style.display = 'block';
+                noClient.style.display = 'none';
+                showNotification(`Loaded workouts for ${clientSelect.options[clientSelect.selectedIndex].text}`);
+            } else {
+                clientWorkouts.style.display = 'none';
+                noClient.style.display = 'block';
+            }
+        }
+
+        function startWorkout(button) {
+            const sessionCard = button.closest('.session-card');
+            const trackingDiv = sessionCard.querySelector('.workout-tracking');
+            const sessionActions = sessionCard.querySelector('.session-actions');
+            
+            trackingDiv.style.display = 'block';
+            sessionActions.style.display = 'none';
+            
+            showNotification('Workout started - track performance');
+        }
+
+        function markMissed(button) {
+            const sessionCard = button.closest('.session-card');
+            const workoutTitle = sessionCard.querySelector('h4').textContent;
+            
+            showNotification(`${workoutTitle} marked as missed session`);
+            
+            const reason = prompt('Reason for missed session (optional):');
+            if (reason) {
+                console.log('Missed session reason:', reason);
+            }
+        }
+
+        function completeWorkout(button) {
+            const sessionCard = button.closest('.session-card');
+            const workoutTitle = sessionCard.querySelector('h4').textContent;
+            const sessionClient = document.getElementById('sessionClient').value;
+            
+            // Update client data if valid client selected
+            if (sessionClient && clientData[sessionClient]) {
+                const client = clientData[sessionClient];
+                if (client.sessionsRemaining > 0) {
+                    client.sessionsRemaining--;
+                    client.sessionsCompleted++;
+                    updateDashboardStats();
+                }
+            }
+            
+            showNotification(`${workoutTitle} completed and logged!`);
+            
+            sessionCard.style.opacity = '0.6';
+            sessionCard.style.border = '2px solid #4caf50';
+            
+            const completedBadge = document.createElement('div');
+            completedBadge.innerHTML = '✅ COMPLETED';
+            completedBadge.style.cssText = 'background: #4caf50; color: white; padding: 0.5rem; border-radius: 4px; text-align: center; margin: 1rem 0; font-weight: bold;';
+            sessionCard.appendChild(completedBadge);
+        }
+
+        // ===== PROGRESS ANALYTICS FUNCTIONS =====
+
+        function loadProgressData() {
+            const clientSelect = document.getElementById('progressClient');
+            const progressData = document.getElementById('progressData');
+            const noClient = document.getElementById('noProgressClient');
+            
+            if (clientSelect.value) {
+                progressData.style.display = 'block';
+                noClient.style.display = 'none';
+                showNotification(`Loaded progress data for ${clientSelect.options[clientSelect.selectedIndex].text}`);
+            } else {
+                progressData.style.display = 'none';
+                noClient.style.display = 'block';
+            }
+        }
+
+        // ===== MESSAGING FUNCTIONS =====
+
+        function selectMessageClient(clientId) {
+            const client = clientData[clientId];
+            if (!client) return;
+            
+            document.getElementById('selectedClient').textContent = client.name;
+            
+            const messageArea = document.getElementById('messageArea');
+            const demoMessages = {
+                'john': [
+                    { sender: 'John', message: 'Hey! Just finished today\'s workout. Felt really strong on the bench press!', time: '2 hours ago' },
+                    { sender: 'You', message: 'That\'s awesome! How did the weight feel? Ready to increase next session?', time: '1 hour ago' },
+                    { sender: 'John', message: 'Yeah I think I can handle 5 more pounds. Form felt solid.', time: '45 minutes ago' }
+                ],
+                'sarah': [
+                    { sender: 'Sarah', message: 'Quick question - can we modify tomorrow\'s cardio? My knee is feeling a bit sore.', time: '1 day ago' },
+                    { sender: 'You', message: 'Of course! Let\'s switch to upper body focused HIIT instead. How does that sound?', time: '1 day ago' }
+                ],
+                'mike': [
+                    { sender: 'Mike', message: 'Thanks for the meal prep tips! Already seeing better energy levels.', time: '3 hours ago' },
+                    { sender: 'You', message: 'That\'s great to hear! Proper nutrition makes such a difference. Keep it up!', time: '2 hours ago' }
+                ],
+                'lisa': [
+                    { sender: 'Lisa', message: 'Can we adjust tomorrow\'s routine? Shoulder is still sore from last session.', time: '5 hours ago' },
+                    { sender: 'You', message: 'Absolutely! Let\'s focus on legs and core instead. How does that sound?', time: '4 hours ago' }
+                ],
+                'alex': [
+                    { sender: 'Alex', message: 'Really excited about the new agility drills! When can we add more?', time: '1 day ago' },
+                    { sender: 'You', message: 'Great to hear! Let\'s master these first, then we\'ll progress to the next level.', time: '1 day ago' }
+                ]
+            };
+            
+            const messages = demoMessages[clientId] || [];
+            messageArea.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = `
+                    margin: 0.5rem 0; 
+                    padding: 0.75rem; 
+                    background: ${msg.sender === 'You' ? 'rgba(211, 47, 47, 0.2)' : 'rgba(255, 255, 255, 0.1)'}; 
+                    border-radius: 8px;
+                    border-left: 3px solid ${msg.sender === 'You' ? '#d32f2f' : '#4caf50'};
+                `;
+                messageDiv.innerHTML = `
+                    <strong>${msg.sender}:</strong> ${msg.message}
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">${msg.time}</div>
+                `;
+                messageArea.appendChild(messageDiv);
+            });
+            
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageArea = document.getElementById('messageArea');
+            const selectedClient = document.getElementById('selectedClient').textContent;
+            
+            if (!messageInput.value.trim()) return;
+            if (selectedClient === 'Select a client') {
+                showNotification('Please select a client first', 'error');
+                return;
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                margin: 0.5rem 0; 
+                padding: 0.75rem; 
+                background: rgba(211, 47, 47, 0.2); 
+                border-radius: 8px;
+                border-left: 3px solid #d32f2f;
+            `;
+            messageDiv.innerHTML = `
+                <strong>You:</strong> ${messageInput.value}
+                <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">Just now</div>
+            `;
+            
+            messageArea.appendChild(messageDiv);
+            messageArea.scrollTop = messageArea.scrollHeight;
+            
+            showNotification(`Message sent to ${selectedClient}`);
+            messageInput.value = '';
+        }
+
+        // ===== REPORTS FUNCTIONS =====
+
+        function generateReport() {
+            const clientSelect = document.getElementById('reportClient');
+            const periodSelect = document.getElementById('reportPeriod');
+            
+            if (!clientSelect.value) {
+                showNotification('Please select a client first', 'error');
+                return;
+            }
+            
+            const clientName = clientSelect.options[clientSelect.selectedIndex].text;
+            const period = periodSelect.options[periodSelect.selectedIndex].text;
+            
+            showNotification(`Generating ${period} report for ${clientName}...`);
+            
+            setTimeout(() => {
+                showNotification('Report generated successfully!');
+            }, 1500);
+        }
+
+        // ===== QUICK SESSION FUNCTIONS =====
+
+        function startQuickSession() {
+            const clientSelect = document.getElementById('quickSessionClient');
+            const quickSessionArea = document.getElementById('quickSessionArea');
+            
+            if (!clientSelect.value) {
+                showNotification('Please select a client first', 'error');
+                return;
+            }
+            
+            const clientName = clientSelect.options[clientSelect.selectedIndex].text;
+            
+            quickSessionArea.innerHTML = `
+                <div class="card">
+                    <h3>Quick Session - ${clientName}</h3>
+                    <p>Session started at ${new Date().toLocaleTimeString()}</p>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h4>Add Exercises On-The-Fly</h4>
+                        <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="addQuickExercise('Bench Press')">Bench Press</button>
+                            <button class="btn btn-secondary" onclick="addQuickExercise('Squat')">Squat</button>
+                            <button class="btn btn-secondary" onclick="addQuickExercise('Deadlift')">Deadlift</button>
+                            <button class="btn btn-secondary" onclick="addQuickExercise('Custom')" id="customExerciseBtn">+ Custom Exercise</button>
+                        </div>
+                    </div>
+                    
+                    <div id="quickWorkoutExercises">
+                        <!-- Exercises will be added here -->
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <button class="btn" onclick="completeQuickSession()">Complete Session</button>
+                        <button class="btn btn-secondary" onclick="cancelQuickSession()">Cancel Session</button>
+                    </div>
+                </div>
+            `;
+            
+            showNotification(`Quick session started for ${clientName}`);
+        }
+
+        function addQuickExercise(exerciseName) {
+            const quickWorkoutExercises = document.getElementById('quickWorkoutExercises');
+            
+            if (exerciseName === 'Custom') {
+                const customName = prompt('Enter exercise name:');
+                if (!customName) return;
+                exerciseName = customName;
+            }
+            
+            const exerciseCount = quickWorkoutExercises.children.length + 1;
+            
+            const exerciseDiv = document.createElement('div');
+            exerciseDiv.className = 'workout-exercise';
+            exerciseDiv.innerHTML = `
+                <div class="exercise-title-row">
+                    <strong>${exerciseCount}. ${exerciseName}</strong>
+                    <button class="btn btn-secondary btn-small" onclick="removeQuickExercise(this)">Remove</button>
+                </div>
+                <div class="sets-container">
+                    <div class="set-row">
+                        <span>Set 1:</span>
+                        <input type="number" class="set-input" value="8" min="1" placeholder="Reps">
+                        <span>reps @</span>
+                        <input type="number" class="set-input" value="0" min="0" placeholder="Weight">
+                        <span>lbs</span>
+                        <button class="remove-set-btn" onclick="removeSet(this)">×</button>
+                    </div>
+                    <button class="add-set-btn" onclick="addSet(this)">+ Add Set</button>
+                </div>
+            `;
+            
+            quickWorkoutExercises.appendChild(exerciseDiv);
+            showNotification(`${exerciseName} added to quick session`);
+        }
+
+        function removeQuickExercise(button) {
+            button.closest('.workout-exercise').remove();
+            showNotification('Exercise removed from quick session');
+        }
+
+        function completeQuickSession() {
+            const clientSelect = document.getElementById('quickSessionClient');
+            const clientName = clientSelect.options[clientSelect.selectedIndex].text;
+            const clientId = clientSelect.value;
+            
+            // Update client data
+            if (clientId && clientData[clientId]) {
+                const client = clientData[clientId];
+                if (client.sessionsRemaining > 0) {
+                    client.sessionsRemaining--;
+                    client.sessionsCompleted++;
+                    updateDashboardStats();
+                }
+            }
+            
+            showNotification(`Quick session completed for ${clientName}!`);
+            
+            document.getElementById('quickSessionArea').innerHTML = `
+                <div class="empty-state">
+                    <p>✅ Session completed successfully!</p>
+                    <p>Select a client to start another quick session</p>
+                </div>
+            `;
+            
+            clientSelect.value = '';
+        }
+
+        function cancelQuickSession() {
+            document.getElementById('quickSessionArea').innerHTML = `
+                <div class="empty-state">
+                    <p>Select a client to start a quick session with on-the-fly workout creation</p>
+                </div>
+            `;
+            
+            document.getElementById('quickSessionClient').value = '';
+            showNotification('Quick session cancelled');
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+
+        function showNotification(message, type = 'success') {
+            console.log('Notification:', message);
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.textContent = message;
+                notification.className = `notification show ${type}`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // ===== DRAG AND DROP FUNCTIONALITY =====
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const draggableItems = document.querySelectorAll('.draggable');
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            const workoutPanel = document.getElementById('workoutPanel');
+            if (workoutPanel) {
+                workoutPanel.addEventListener('dragover', handleDragOver);
+                workoutPanel.addEventListener('drop', handleDrop);
+                workoutPanel.addEventListener('dragenter', handleDragEnter);
+                workoutPanel.addEventListener('dragleave', handleDragLeave);
+            }
+        });
+
+        function handleDragStart(e) {
+            draggedExercise = e.target.dataset.exercise;
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (draggedExercise) {
+                addToWorkout(draggedExercise);
+                draggedExercise = null;
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        
+        window.onload = function() {
+            console.log('Mobile-optimized trainer dashboard loaded');
+            showNotification('Welcome to Domain Athletics Mobile Dashboard!');
+            initializeDragAndDrop();
+            updateDashboardStats();
+            console.log('All functions loaded successfully');
+        };
+
+        function initializeDragAndDrop() {
+            setTimeout(() => {
+                const draggableItems = document.querySelectorAll('.draggable');
+                draggableItems.forEach(item => {
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragend', handleDragEnd);
+                });
+            }, 100);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const clientModal = document.getElementById('clientModal');
+            const exerciseModal = document.getElementById('exerciseModal');
+            const clientDetailsModal = document.getElementById('clientDetailsModal');
+            
+            if (event.target === clientModal) {
+                clientModal.style.display = 'none';
+            }
+            if (event.target === exerciseModal) {
+                exerciseModal.style.display = 'none';
+            }
+            if (event.target === clientDetailsModal) {
+                clientDetailsModal.style.display = 'none';
+            }
+        };
+
+        // Form submissions
+        document.addEventListener('DOMContentLoaded', function() {
+            const clientForm = document.getElementById('clientForm');
+            const exerciseForm = document.getElementById('exerciseForm');
+            
+            if (clientForm) {
+                clientForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const clientName = document.getElementById('clientName').value;
+                    showNotification(`Client ${clientName} saved successfully!`);
+                    closeClientModal();
+                });
+            }
+            
+            if (exerciseForm) {
+                exerciseForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showNotification('Exercise saved successfully!');
+                    closeExerciseModal();
+                });
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
+
+        console.log('Mobile-optimized dashboard loaded with:');
+        console.log('- Hamburger Menu: ✓');
+        console.log('- Mobile Sidebar Overlay: ✓');
+        console.log('- Touch-friendly Navigation: ✓');
+        console.log('- Responsive Design: ✓');
+        console.log('- All Functions Preserved: ✓');
+    </script>
+</body>
+</html>
